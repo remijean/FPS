@@ -1,0 +1,52 @@
+[gd_scene load_steps=9 format=2]
+
+[ext_resource path="res://scenes/player/player.gd" type="Script" id=1]
+[ext_resource path="res://scenes/player/arms.glb" type="PackedScene" id=2]
+[ext_resource path="res://scenes/player/arms.gd" type="Script" id=3]
+
+[sub_resource type="CapsuleShape" id=1]
+radius = 0.5
+height = 1.5
+
+[sub_resource type="AnimationNodeAnimation" id=2]
+animation = "Idle-loop"
+
+[sub_resource type="AnimationNodeAnimation" id=5]
+animation = "Walk-loop"
+
+[sub_resource type="AnimationNodeBlend2" id=4]
+
+[sub_resource type="AnimationNodeBlendTree" id=3]
+graph_offset = Vector2( -354, 68.5 )
+nodes/Idle/node = SubResource( 2 )
+nodes/Idle/position = Vector2( 120, 140 )
+nodes/Walk/node = SubResource( 5 )
+nodes/Walk/position = Vector2( 120, 260 )
+nodes/WalkBlend/node = SubResource( 4 )
+nodes/WalkBlend/position = Vector2( 300, 220 )
+nodes/output/position = Vector2( 480, 220 )
+node_connections = [ "output", 0, "WalkBlend", "WalkBlend", 0, "Idle", "WalkBlend", 1, "Walk" ]
+
+[node name="Player" type="KinematicBody"]
+script = ExtResource( 1 )
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+transform = Transform( 1, 0, 0, 0, -1.62921e-07, -1, 0, 1, -1.62921e-07, 0, 0, 0 )
+shape = SubResource( 1 )
+
+[node name="Head" type="Position3D" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0 )
+
+[node name="Camera" type="Camera" parent="Head"]
+
+[node name="Arms" parent="Head" instance=ExtResource( 2 )]
+script = ExtResource( 3 )
+
+[node name="AnimationTree" type="AnimationTree" parent="."]
+tree_root = SubResource( 3 )
+anim_player = NodePath("../Head/Arms/AnimationPlayer")
+active = true
+parameters/WalkBlend/blend_amount = 0.0
+[connection signal="state_changed" from="." to="Head/Arms" method="_on_Player_state_changed"]
+
+[editable path="Head/Arms"]
